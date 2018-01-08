@@ -66,8 +66,9 @@ def writeResults(clustered_dupes, input_file, output_file):
     logging.info('saving results to: %s' % output_file)
 
     cluster_membership = {}
+    cluster_id = 0
     for cluster_id, (cluster, score) in enumerate(clustered_dupes):
-        id_set, scores = cluster_id
+        id_set, scores = cluster
         cluster_d = [data_d[c] for c in id_set]
 
         canonical_rep = dedupe.canonicalize(cluster_d)
@@ -77,13 +78,6 @@ def writeResults(clustered_dupes, input_file, output_file):
                 "canonical representation" : canonical_rep,
                 "confidence": score
             }
-
-        # for record_id in cluster:
-        #     #cluster_membership[record_id] = cluster_id
-        #     cluster_membership[record_id] = {
-        #         "cluster id" : cluster_id,
-        #         "confidence": score
-        #     }
 
     singleton_id = cluster_id + 1
 
