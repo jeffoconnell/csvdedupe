@@ -68,7 +68,11 @@ def writeResults(clustered_dupes, input_file, output_file):
     cluster_membership = {}
     for cluster_id, (cluster, score) in enumerate(clustered_dupes):
         for record_id in cluster:
-            cluster_membership[record_id] = cluster_id
+            #cluster_membership[record_id] = cluster_id
+            cluster_membership[record_id] = {
+                "cluster id" : cluster_id,
+                "confidence": score
+            }
 
     unique_record_id = cluster_id + 1
 
@@ -77,6 +81,7 @@ def writeResults(clustered_dupes, input_file, output_file):
     reader = csv.reader(StringIO(input_file))
 
     heading_row = next(reader)
+    heading_row.insert(0, 'confidence_score')
     heading_row.insert(0, u'Cluster ID')
     writer.writerow(heading_row)
 
