@@ -87,11 +87,14 @@ def writeResults(clustered_dupes, input_file, output_file):
 
     for row_id, row in enumerate(reader):
         if row_id in cluster_membership:
-            cluster_id = cluster_membership[row_id]
+            cluster_id = cluster_membership[row_id]["cluster id"]
+            row.insert(0, cluster_membership[row_id]['confidence'])
+            row.insert(0, cluster_id)
         else:
-            cluster_id = unique_record_id
+            row.insert(0, None)
+            row.insert(0, unique_record_id)
             unique_record_id += 1
-        row.insert(0, cluster_id)
+            
         writer.writerow(row)
 
 
