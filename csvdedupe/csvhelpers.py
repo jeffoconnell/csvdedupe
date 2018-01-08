@@ -67,35 +67,55 @@ def writeResults(clustered_dupes, input_file, output_file):
 
     cluster_membership = {}
     for cluster_id, (cluster, score) in enumerate(clustered_dupes):
-        for record_id in cluster:
-            #cluster_membership[record_id] = cluster_id
+        id_set, scores = cluster_id
+        cluster_d = [data_d[c] for c in id_set]
+
+        canonical_rep = dedupe.canonicalize(cluster_d)
+        for record_id, score in zip(id_set, scores):
             cluster_membership[record_id] = {
                 "cluster id" : cluster_id,
+                "canonical representation" : canonical_rep,
                 "confidence": score
             }
 
-    unique_record_id = cluster_id + 1
+        # for record_id in cluster:
+        #     #cluster_membership[record_id] = cluster_id
+        #     cluster_membership[record_id] = {
+        #         "cluster id" : cluster_id,
+        #         "confidence": score
+        #     }
 
-    writer = csv.writer(output_file)
+    singleton_id = cluster_id + 1
 
-    reader = csv.reader(StringIO(input_file))
+    with open(output_file, 'w') as f_output, open(input_file) as f_input:
+        writer = csv.writer(f_output)
+        reader = csv.reader(f_input)
 
-    heading_row = next(reader)
-    heading_row.insert(0, 'confidence_score')
-    heading_row.insert(0, u'Cluster ID')
-    writer.writerow(heading_row)
+        heading_row = next(reader)
+        heading_row.insert(0, 'confidence_score')
+        heading_row.insert(0, 'Cluster ID')
+        canonical_keys = canonical_rep.keys()
+        for key in canonical_keys:
+            heading_row.append('canonical_' + key)
 
-    for row_id, row in enumerate(reader):
-        if row_id in cluster_membership:
-            cluster_id = cluster_membership[row_id]["cluster id"]
-            row.insert(0, cluster_membership[row_id]['confidence'])
-            row.insert(0, cluster_id)
-        else:
-            row.insert(0, None)
-            row.insert(0, unique_record_id)
-            unique_record_id += 1
-            
-        writer.writerow(row)
+        writer.writerow(heading_row)
+
+        for row in reader:
+            row_id = int(row[0])
+            if row_id in cluster_membership:
+                cluster_id = cluster_membership[row_id]["cluster id"]
+                canonical_rep = cluster_membership[row_id]["canonical representation"]
+                row.insert(0, cluster_membership[row_id]['confidence'])
+                row.insert(0, cluster_id)
+                for key in canonical_keys:
+                    row.append(canonical_rep[key].encode('utf8'))
+            else:
+                row.insert(0, None)
+                row.insert(0, singleton_id)
+                singleton_id += 1
+                for key in canonical_keys:
+                    row.append(None)
+            writer.writerow(row)
 
 
 # ## Writing results
