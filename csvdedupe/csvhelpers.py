@@ -67,15 +67,17 @@ def writeResults(clustered_dupes, input_file, output_file):
 
     cluster_membership = {}
     for cluster_id, (cluster, score) in enumerate(clustered_dupes):
+        offset = 0
         for record_id in cluster:
             cluster_membership[record_id] = cluster_id
             
-            rec_score = score[record_id]
+            rec_score = score[offset]
             logging.info('score %s' % rec_score)
             cluster_membership[record_id] = {
                 "cluster id" : cluster_id,
                 "confidence": rec_score
             }
+            offset += 1
 
     unique_record_id = cluster_id + 1
 
