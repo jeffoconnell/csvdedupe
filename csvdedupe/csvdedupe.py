@@ -140,6 +140,9 @@ class CSVDedupe(csvhelpers.CSVCommand) :
                 children = parents.get(row_id, [])
                 new_cluster.extend(children)
                 new_scores.extend([score] * len(children))
+
+            logging.info('# duplicate sets %s' % len(new_cluster))
+            logging.info('# duplicate sets %s' % len(new_scores))
             expanded_clustered_dupes.append((new_cluster, new_scores))
 
         clustered_dupes = expanded_clustered_dupes
